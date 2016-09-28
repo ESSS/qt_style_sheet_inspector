@@ -9,9 +9,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [
-    'PyQt5',
-]
+requirements = []
 
 setup(
     name='qt_style_sheet_inspector',
@@ -37,6 +35,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: User Interfaces',

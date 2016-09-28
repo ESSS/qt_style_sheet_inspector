@@ -12,6 +12,13 @@ A inspector widget to view and modify style sheet of a Qt app in runtime.
 * Free software: MIT license
 
 
+Observation
+-----------
+
+It need PyQt5 to work but it doesn't have it as a dependency, as testing with PyQt5 pypi proved
+unreliable (may be changed in the future).
+
+
 Features
 --------
 
