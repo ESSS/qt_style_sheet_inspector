@@ -38,6 +38,8 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
+        'Topic :: Software Development :: Testing',
+        'Topic :: Software Development :: User Interfaces',
     ],
     test_suite='tests',
     tests_require=[],
