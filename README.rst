@@ -2,8 +2,8 @@
 Qt Style Sheet Inspector
 ========================
 
-.. image:: https://img.shields.io/travis/fogo/qt_style_sheet_inspector.svg
-        :target: https://travis-ci.org/fogo/qt_style_sheet_inspector
+.. image:: https://img.shields.io/travis/ESSS/qt_style_sheet_inspector.svg
+        :target: https://travis-ci.org/ESSS/qt_style_sheet_inspector
 
 
 A inspector widget to view and modify style sheet of a Qt app in runtime.

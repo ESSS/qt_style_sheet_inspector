@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/fogo/qt_style_sheet_inspector
+    $ git clone git://github.com/ESSS/qt_style_sheet_inspector
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/fogo/qt_style_sheet_inspector/tarball/master
+    $ curl  -OL https://github.com/ESSS/qt_style_sheet_inspector/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/fogo/qt_style_sheet_inspector
-.. _tarball: https://github.com/fogo/qt_style_sheet_inspector/tarball/master
+.. _Github repo: https://github.com/ESSS/qt_style_sheet_inspector
+.. _tarball: https://github.com/ESSS/qt_style_sheet_inspector/tarball/master
