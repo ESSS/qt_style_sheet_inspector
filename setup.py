@@ -13,12 +13,6 @@ requirements = [
     'PyQt5',
 ]
 
-test_requirements = [
-    'pytest',
-    'pytest-qt',
-    'pytest-mock',
-]
-
 setup(
     name='qt_style_sheet_inspector',
     version='0.1.0',
@@ -48,5 +42,5 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     test_suite='tests',
-    tests_require=test_requirements
+    tests_require=[],
 )
