@@ -4,7 +4,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import pytest
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import qApp
 from qt_style_sheet_inspector import StyleSheetInspector
 
