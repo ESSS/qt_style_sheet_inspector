@@ -5,21 +5,20 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest
 from PyQt5.QtCore import Qt
-from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import qApp
 from qt_style_sheet_inspector import StyleSheetInspector
 
 
 def test_load_style_sheet(inspector):
     """
-    :type inspector: alfasim_gui.gui.style_sheet_inspector.StyleSheetInspector
+    :type inspector: qt_style_sheet_inspector.StyleSheetInspector
     """
     assert inspector.widget.style_text_edit.toPlainText() == qApp.styleSheet()
 
 
 def test_apply(inspector):
     """
-    :type inspector: alfasim_gui.gui.style_sheet_inspector.StyleSheetInspector
+    :type inspector: qt_style_sheet_inspector.StyleSheetInspector
     """
     assert not inspector.widget.apply_button.isEnabled()
     inspector.widget.style_text_edit.setPlainText(qApp.styleSheet() + """\
@@ -35,7 +34,7 @@ def test_apply(inspector):
 
 def test_search_hit(inspector):
     """
-    :type inspector: alfasim_gui.gui.style_sheet_inspector.StyleSheetInspector
+    :type inspector: qt_style_sheet_inspector.StyleSheetInspector
     """
     # keyClick only works if window is shown
     inspector.show()
@@ -48,22 +47,22 @@ def test_search_hit(inspector):
     assert inspector.widget.search_bar.styleSheet() == "color: green;"
     assert inspector.widget.style_text_edit.textCursor().position() == 35
 
-    QTest.keyClick(inspector.widget, Qt.Key_F3, delay=50)
+    inspector.widget.onNextSearchHit()
     assert inspector.widget.search_bar.styleSheet() == "color: green;"
     assert inspector.widget.style_text_edit.textCursor().position() == 61
 
-    QTest.keyClick(inspector.widget, Qt.Key_F3, delay=50)
+    inspector.widget.onNextSearchHit()
     assert inspector.widget.search_bar.styleSheet() == "color: green;"
     assert inspector.widget.style_text_edit.textCursor().position() == 86
 
-    QTest.keyClick(inspector.widget, Qt.Key_F3, delay=50)
+    inspector.widget.onNextSearchHit()
     assert inspector.widget.search_bar.styleSheet() == "color: green;"
     assert inspector.widget.style_text_edit.textCursor().position() == 35
 
 
 def test_search_miss(inspector):
     """
-    :type inspector: alfasim_gui.gui.style_sheet_inspector.StyleSheetInspector
+    :type inspector: qt_style_sheet_inspector.StyleSheetInspector
     """
     # keyClick only works if window is shown
     inspector.show()
@@ -74,14 +73,14 @@ def test_search_miss(inspector):
     assert inspector.widget.search_bar.styleSheet() == "color: red;"
     assert inspector.widget.style_text_edit.textCursor().position() == 0
 
-    QTest.keyClick(inspector.widget, Qt.Key_F3, delay=50)
+    inspector.widget.onNextSearchHit()
     assert inspector.widget.search_bar.styleSheet() == "color: red;"
     assert inspector.widget.style_text_edit.textCursor().position() == 0
 
 
 def test_focus_search_bar(inspector, mocker):
     """
-    :type inspector: alfasim_gui.gui.style_sheet_inspector.StyleSheetInspector
+    :type inspector: qt_style_sheet_inspector.StyleSheetInspector
     :type mocker: pytest_mock.MockFixture
     """
     # keyClick only works if window is shown
@@ -89,14 +88,13 @@ def test_focus_search_bar(inspector, mocker):
 
     # testing focus is unreliable, especially when using multiprocessing
     mocker.patch.object(inspector.widget.search_bar, 'setFocus')
-
-    QTest.keyClick(inspector.widget, Qt.Key_F, Qt.ControlModifier, delay=50)
+    inspector.widget.onFocusSearchBar()
     inspector.widget.search_bar.setFocus.assert_called_once_with()
 
 
 def test_undo_redo(inspector):
     """
-    :type inspector: alfasim_gui.gui.style_sheet_inspector.StyleSheetInspector
+    :type inspector: qt_style_sheet_inspector.StyleSheetInspector
     """
     # keyClick only works if window is shown
     inspector.show()
@@ -104,7 +102,7 @@ def test_undo_redo(inspector):
     style_sheets = [qApp.styleSheet()]
 
     # Undo before changes doesn't have any effect
-    QTest.keyClick(inspector.widget, Qt.Key_Z, Qt.ControlModifier | Qt.AltModifier, delay=50)
+    inspector.widget.onUndo()
     assert inspector.widget.style_text_edit.toPlainText() == style_sheets[-1]
 
     # Undo after changes
@@ -119,19 +117,19 @@ def test_undo_redo(inspector):
     assert current != style_sheets[-1]
     style_sheets.append(current)
 
-    QTest.keyClick(inspector.widget, Qt.Key_Z, Qt.ControlModifier | Qt.AltModifier, delay=50)
+    inspector.widget.onUndo()
     assert inspector.widget.style_text_edit.toPlainText() == style_sheets[-2]
 
     # Redo
-    QTest.keyClick(inspector.widget, Qt.Key_Y, Qt.ControlModifier | Qt.AltModifier, delay=50)
+    inspector.widget.onRedo()
     assert inspector.widget.style_text_edit.toPlainText() == style_sheets[-1]
 
     # Redo again, won't have any effect
-    QTest.keyClick(inspector.widget, Qt.Key_Y, Qt.ControlModifier | Qt.AltModifier, delay=50)
+    inspector.widget.onRedo()
     assert inspector.widget.style_text_edit.toPlainText() == style_sheets[-1]
 
     # Undo, change again then try to redo, won't have any effect, as state tape has been updated
-    QTest.keyClick(inspector.widget, Qt.Key_Z, Qt.ControlModifier | Qt.AltModifier, delay=50)
+    inspector.widget.onUndo()
     inspector.widget.style_text_edit.setPlainText(qApp.styleSheet() + """\
         QPushButton {
             background-color: #dcdddf;
@@ -143,7 +141,7 @@ def test_undo_redo(inspector):
     assert current != style_sheets[-1]
     style_sheets.append(current)
 
-    QTest.keyClick(inspector.widget, Qt.Key_Y, Qt.ControlModifier | Qt.AltModifier, delay=50)
+    inspector.widget.onRedo()
     assert inspector.widget.style_text_edit.toPlainText() == style_sheets[-1]
 
 
