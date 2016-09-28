@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
 
 import pytest
 from PyQt5.QtWidgets import qApp
@@ -40,8 +41,8 @@ def test_search_hit(inspector):
 
     assert inspector.widget.style_text_edit.textCursor().position() == 0
 
-    # there are 3 occurrences of "0px" in style sheet, after that it should cycle back to first
-    # occurrence
+    # there are 3 occurrences of "0px" in style sheet, after that it should
+    # cycle back to first occurrence
     inspector.widget.search_bar.setText("0px")
     assert inspector.widget.search_bar.styleSheet() == "color: green;"
     assert inspector.widget.style_text_edit.textCursor().position() == 35
@@ -127,7 +128,8 @@ def test_undo_redo(inspector):
     inspector.widget.onRedo()
     assert inspector.widget.style_text_edit.toPlainText() == style_sheets[-1]
 
-    # Undo, change again then try to redo, won't have any effect, as state tape has been updated
+    # Undo, change again then try to redo, won't have any effect, as state
+    # tape has been updated
     inspector.widget.onUndo()
     inspector.widget.style_text_edit.setPlainText(qApp.styleSheet() + """\
         QPushButton {

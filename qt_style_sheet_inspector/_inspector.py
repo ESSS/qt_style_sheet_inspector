@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
 
 from textwrap import dedent
 
 from PyQt5.QtCore import QEvent, Qt
 from PyQt5.QtGui import QKeySequence, QTextCursor
-from PyQt5.QtWidgets import (
-    QDialog, QHBoxLayout, QLineEdit, QMessageBox, QPushButton, QShortcut, QTextEdit, QVBoxLayout,
-    QWidget, qApp)
+from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLineEdit, QMessageBox, \
+    QPushButton, QShortcut, QTextEdit, QVBoxLayout, QWidget, qApp
 
 
 class StyleSheetInspector(QDialog):
     """
-    An inspector window that tries to aid developers inspecting current style sheet used by a
-    Qt application.
+    An inspector window that tries to aid developers inspecting current style
+    sheet used by a Qt application.
 
     It provides a few features:
 
     * a search bar to search for occurrences in style sheet
     * apply style sheet changes to app in run time, without the necessity of
-        regenerating Qt resource files for every change in QSS, which can speed the design of a
-        style sheet a lot.
+        regenerating Qt resource files for every change in QSS, which can
+        speed the design of a style sheet a lot.
     * undo/redo of applied style sheets
 
     Press `F1` to see all available shortcuts.
@@ -29,19 +29,20 @@ class StyleSheetInspector(QDialog):
     About code style
     ----------------
 
-    Since it is an specialization of a Qt widget, it reuses its code style so its API is
-    consistent.
+    Since it is an specialization of a Qt widget, it reuses its code style so
+    its API is consistent.
 
     Known issues
     ------------
 
-    * Inspector window still reuses app style sheet, which can be annoying when testing styles.
-      Is there a way to avoid reusing style sheets?
+    * Inspector window still reuses app style sheet, which can be annoying
+    when testing styles. Is there a way to avoid reusing style sheets?
 
     Reference
     ---------
 
-    Inspired by http://doc.qt.io/qt-5/qtwidgets-widgets-stylesheet-example.html.
+    Inspired by
+    http://doc.qt.io/qt-5/qtwidgets-widgets-stylesheet-example.html.
     """
 
     def __init__(self, parent=None):
@@ -80,7 +81,8 @@ class StyleSheetWidget(QWidget):
 
         self.style_text_edit = QTextEdit(self)
         self.style_text_edit.textChanged.connect(self.onStyleTextChanged)
-        # To prevent messing with contents when pasted from an IDE, for instance.
+        # To prevent messing with contents when pasted from an IDE, for
+        # instance.
         self.style_text_edit.setAcceptRichText(False)
 
         self.apply_button = QPushButton('Apply', self)
@@ -101,13 +103,16 @@ class StyleSheetWidget(QWidget):
         apply_shortcut = QShortcut(QKeySequence(Qt.CTRL + Qt.Key_S), self)
         apply_shortcut.activated.connect(self.applyStyleSheet)
 
-        undo_shortcut = QShortcut(QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Z), self)
+        undo_shortcut = QShortcut(
+            QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Z), self)
         undo_shortcut.activated.connect(self.onUndo)
 
-        redo_shortcut = QShortcut(QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Y), self)
+        redo_shortcut = QShortcut(
+            QKeySequence(Qt.CTRL + Qt.ALT + Qt.Key_Y), self)
         redo_shortcut.activated.connect(self.onRedo)
 
-        help_shortcut = QShortcut(QKeySequence(Qt.Key_F1), self)
+        help_shortcut = QShortcut(
+            QKeySequence(Qt.Key_F1), self)
         help_shortcut.activated.connect(self.onHelp)
 
         self.loadStyleSheet()
@@ -155,9 +160,9 @@ class StyleSheetWidget(QWidget):
 
     def onSearchTextChanged(self, text):
         """
-        When search bar text changes, try to find text in style sheet text. If there is a match,
-        color search bar text green, otherwise goes back to start of style sheet text and text
-        is colored red.
+        When search bar text changes, try to find text in style sheet text.
+        If there is a match, color search bar text green, otherwise goes back
+        to start of style sheet text and text is colored red.
         """
         search = self.search_bar.text()
         if not self.style_text_edit.find(search):
@@ -168,7 +173,8 @@ class StyleSheetWidget(QWidget):
 
     def onNextSearchHit(self):
         """
-        Goes to next match to search text. If there isn't any, cycles back to first occurrence.
+        Goes to next match to search text. If there isn't any, cycles back to
+        first occurrence.
         """
         search = self.search_bar.text()
         if not self.style_text_edit.find(search):
