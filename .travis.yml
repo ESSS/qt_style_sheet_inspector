@@ -1,6 +1,5 @@
 sudo: false
 language: python
-python: 3.6
 install:
 - pip install --upgrade --pre tox
 - pip install PyQt5
@@ -10,9 +9,15 @@ env:
     - TOXENV=py36
 jobs:
   include:
+    - env: TOXENV=py35
+      python: '3.5'
+
     - env: TOXENV=py36
       python: '3.6'
-      
+
+    - env: TOXENV=py37
+      python: 'nightly'
+
     - stage: deploy
       python: '3.6'
       env:
@@ -28,5 +33,5 @@ jobs:
         on:
           tags: true
           repo: ESSS/qt_style_sheet_inspector
-         
+
 script: tox --recreate
