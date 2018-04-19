@@ -3,7 +3,13 @@ Qt Style Sheet Inspector
 ========================
 
 .. image:: https://img.shields.io/travis/ESSS/qt_style_sheet_inspector.svg
-        :target: https://travis-ci.org/ESSS/qt_style_sheet_inspector
+    :target: https://travis-ci.org/ESSS/qt_style_sheet_inspector
+
+.. image:: https://img.shields.io/pypi/v/qt_style_sheet_inspector.svg
+    :target: https://pypi.python.org/pypi/qt_style_sheet_inspector
+
+.. image:: https://img.shields.io/pypi/pyversions/qt_style_sheet_inspector.svg
+    :target: https://pypi.python.org/pypi/qt_style_sheet_inspector
 
 
 A inspector widget to view and modify style sheet of a Qt app in runtime.
