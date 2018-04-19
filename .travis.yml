@@ -1,31 +1,32 @@
+sudo: false
 language: python
 python: 3.6
-sudo: required
-dist: trusty
+install:
+- pip install --upgrade --pre tox
+- pip install PyQt5
 
 env:
-  - TOXENV=py36
-
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install:
-  # PyQt5
-  - pip install PyQt5
-
-  # Tox
-  - pip install -U tox
-
-# command to run tests, e.g. python setup.py test
-script: tox -e ${TOXENV},flake8
-
-# After you create the Github repo and add it to Travis, run the
-# travis_pypi_setup.py script to finish PyPI deployment setup
-deploy:
-  provider: pypi
-  distributions: sdist bdist_wheel
-  user: fogo
-  password:
-    secure: PLEASE_REPLACE_ME
-  on:
-    tags: true
-    repo: ESSS/qt_style_sheet_inspector
-    condition: $TOXENV == py36
+  matrix:
+    - TOXENV=py36
+jobs:
+  include:
+    - env: TOXENV=py36
+      python: '3.6'
+      
+    - stage: deploy
+      python: '3.6'
+      env:
+      install: pip install -U setuptools setuptools_scm
+      script: skip
+      deploy:
+        provider: pypi
+        user: williamjamir
+        distributions: sdist bdist_wheel
+        skip_upload_docs: true
+        password:
+          secure: CJUEv0ggJe3DmjDs5c57KpdH442vUeIiAK55w6fQKk4RXpJOABUNLefTqxdNGgwxcQ1zBj73rj+sphaa7HspY/RkKeFa23tObQvOiTBOin3AOYQkWESNSEkZx+yfIMgDSlS1yDwvo/fIeItg1LTa75ybV5jXlCGR7esEnN/krDYfWHbcRoVh3Mk10qnp9VfBUsguwOSYll85l+44FFctqyrWrKHl1YhP26/OQ0ITw/6CN9TJw+GnDg16CjpAVjPXg9H/qS+zExWe6dGkyRsMndjs6/flhiXYOUdnTu9Nx4Aa7/Jsv8BwMHLw4bURVvsy/d4Cllmips0Z9OZ/UoLvRpPT/Ezg1DXj0VM/G7Ftjfwdq0FpIpoCXvgydQhPe2lLDHTsH+lr0CDGuHiQQiCiFqpHqUzpNxe0XCxAsFGtoeup1WMU9PmZveN4ujZMMQsJ3YDs/2M1MwAgtQsPDqW70DqBrtOf6V62DnrkIaAHZV4CE3yzCb3LYhTFWNTF0B/4okEtpEVj2VmaW8L+otM9/Mw1K4Ygg8sfwSRBCpHe0ezJ8/IC7gqlPtPXLip5eQQ26Brf84ulq3dsMANEKTTRVz5pBkG6JvIbec60Bd1Zo1ToxqkwRK6+0yXLScTQTZ3ftU7HIFQyVKQVxpDAThthg8xYlPbXq4kOh21dD05DVf8=
+        on:
+          tags: true
+          repo: ESSS/qt_style_sheet_inspector
+         
+script: tox --recreate
