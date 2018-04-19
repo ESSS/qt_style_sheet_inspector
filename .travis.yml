@@ -2,7 +2,6 @@ sudo: false
 language: python
 install:
 - pip install --upgrade --pre tox
-- pip install PyQt5
 
 env:
   matrix:
