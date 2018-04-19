@@ -1,10 +1,10 @@
 language: python
-python: 3.4
+python: 3.6
 sudo: required
 dist: trusty
 
 env:
-  - TOXENV=py34
+  - TOXENV=py36
 
 virtualenv:
   system_site_packages: true
@@ -14,7 +14,7 @@ install:
   - sudo apt-get update
 
   # PyQt5
-  - sudo apt-get install python3-pyqt5
+  - pip install PyQt5
 
   # Tox
   - pip install -U tox
@@ -33,4 +33,4 @@ deploy:
   on:
     tags: true
     repo: ESSS/qt_style_sheet_inspector
-    condition: $TOXENV == py34
+    condition: $TOXENV == py36
