@@ -5,6 +5,9 @@ Qt Style Sheet Inspector
 .. image:: https://img.shields.io/travis/ESSS/qt_style_sheet_inspector.svg
     :target: https://travis-ci.org/ESSS/qt_style_sheet_inspector
 
+.. image:: https://img.shields.io/appveyor/ci/ESSS/qt-style-sheet-inspector/master.svg
+    :target: https://ci.appveyor.com/project/ESSS/qt-style-sheet-inspector
+
 .. image:: https://img.shields.io/pypi/v/qt_style_sheet_inspector.svg
     :target: https://pypi.python.org/pypi/qt_style_sheet_inspector
 
