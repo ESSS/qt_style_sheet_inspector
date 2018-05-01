@@ -28,46 +28,42 @@ See the demo in action:
     :scale: 10 %
 
 
-
 Features
 --------
 View current style sheet of an application during runtime
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    The inspector only checks for style sheets that were applied to the QApplication, it's the topmost and any change here can be propagated to all children. 
+The inspector only checks for style sheets that were applied to the QApplication, it's the topmost and any change here can be propagated to all children. 
     
-        Style sheets that applied to an individual widget will not appear on the inspector.
+Style sheets that applied to an individual widget will not appear on the inspector.
 
 
 Style sheet can be changed at runtime (Pressing CTRL+S)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    .. image::  https://github.com/williamjamir/demo_qt_inspector/blob/master/images/qt_inspector_runtime_changes.gif
-        :width: 10px
-        :height: 10px
-        :scale: 10 %
+.. image::  https://github.com/williamjamir/demo_qt_inspector/blob/master/images/qt_inspector_runtime_changes.gif
+    :width: 10px
+    :height: 10px
+    :scale: 10 %
 
 Search bar to help find specific types or names (Pressing F3)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    .. image:: https://github.com/williamjamir/demo_qt_inspector/blob/master/images/qt_inspector_search.gif
-        :width: 10px
-        :height: 10px
-        :scale: 10 %
+.. image:: https://github.com/williamjamir/demo_qt_inspector/blob/master/images/qt_inspector_search.gif
+    :width: 10px
+    :height: 10px
+    :scale: 10 %
 
 Can undo/redo changes (Pressing CTRL+ALT+Z or CTRL+ALT+Y)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
        
-    .. image:: https://github.com/williamjamir/demo_qt_inspector/blob/master/images/qt_inspector_undo_redo.gif
-        :width: 10px
-        :height: 10px
-        :scale: 10 %
+.. image:: https://github.com/williamjamir/demo_qt_inspector/blob/master/images/qt_inspector_undo_redo.gif
+    :width: 10px
+    :height: 10px
+    :scale: 10 %
     
-
-
 Observation
 -----------
 
-    It needs PyQt5 to work, but it doesn't have it as a dependency.
+It needs PyQt5 to work, but it doesn't have it as a dependency.
     
-
 * Free software: MIT license
