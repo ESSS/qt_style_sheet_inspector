@@ -7,7 +7,7 @@ Qt Style Sheet Inspector
         :target: https://travis-ci.org/ESSS/qt_style_sheet_inspector
 
 
-A inspector widget to view and modify style sheet of a Qt app in runtime.
+An inspector widget to view and modify the style sheet of a Qt app at runtime.
 
 
 Usage
@@ -31,15 +31,15 @@ See the demo in action:
 
 Features
 --------
-view current style sheet of application during runtime
+View current style sheet of an application during runtime
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    The inspector only checks for style sheets that was applied to the QApplication, it's the topmost and any change here can be propagated to all child's. 
+    The inspector only checks for style sheets that were applied to the QApplication, it's the topmost and any change here can be propagated to all children. 
     
-        Style sheets that applied to an individual widget will not appers on the inspector.
+        Style sheets that applied to an individual widget will not appear on the inspector.
 
 
-Style sheet can be changed in runtime (Pressing CTRL+S)
+Style sheet can be changed at runtime (Pressing CTRL+S)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image::  https://github.com/williamjamir/demo_qt_inspector/blob/master/images/qt_inspector_runtime_changes.gif
@@ -67,7 +67,7 @@ Can undo/redo changes (Pressing CTRL+ALT+Z or CTRL+ALT+Y)
 Observation
 -----------
 
-    It need PyQt5 to work but it doesn't have it as a dependency.
+    It needs PyQt5 to work, but it doesn't have it as a dependency.
     
 
 * Free software: MIT license
