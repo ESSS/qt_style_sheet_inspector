@@ -11,6 +11,9 @@ Qt Style Sheet Inspector
 
 .. image:: https://img.shields.io/pypi/v/qt_style_sheet_inspector.svg
     :target: https://pypi.python.org/pypi/qt_style_sheet_inspector
+    
+.. image:: https://img.shields.io/conda/vn/conda-forge/qt_style_sheet_inspector.svg
+    :target: https://anaconda.org/conda-forge/qt_style_sheet_inspector    
 
 .. image:: https://img.shields.io/pypi/pyversions/qt_style_sheet_inspector.svg
     :target: https://pypi.python.org/pypi/qt_style_sheet_inspector
