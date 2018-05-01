@@ -1,13 +1,17 @@
+skip_branch_with_pr: true
+
 environment:
-  matrix:
-    - TOXENV: "flake8"
-    - TOXENV: "py35"
-    - TOXENV: "py36"
+  matrix:  
+    - PYTHON: C:\Python35
+      TOX_ENV: py35
+
+    - PYTHON: C:\Python36
+      TOX_ENV: py36
 
 install:
-  - C:\Python36\python -m pip install tox
+  - "%PYTHON%/python.exe -m pip install -U pip tox wheel"
 
 build: false  # Not a C# project
 
 test_script:
-  - C:\Python36\scripts\tox
+   - "%PYTHON%/Scripts/tox -e %TOX_ENV%"
