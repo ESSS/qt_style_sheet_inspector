@@ -3,12 +3,16 @@
 from __future__ import absolute_import, division, print_function, \
     unicode_literals
 
+import types
+from contextlib import contextmanager
 from textwrap import dedent
 
 from PyQt5.QtCore import QEvent, Qt
-from PyQt5.QtGui import QKeySequence, QTextCursor
+from PyQt5.QtGui import QKeySequence, QTextCursor, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLineEdit, QMessageBox, \
-    QPushButton, QShortcut, QTextEdit, QVBoxLayout, QWidget, qApp
+    QPushButton, QShortcut, QTextEdit, QVBoxLayout, QWidget, qApp, QMenuBar, QAction, QPushButton, \
+    QTreeView, QSplitter
+from PyQt5.uic.properties import QtGui
 
 
 class StyleSheetInspector(QDialog):
@@ -50,9 +54,12 @@ class StyleSheetInspector(QDialog):
 
         self.setWindowTitle('Qt Style Sheet Inspector')
         self.widget = StyleSheetWidget()
-
+        self.model_explorer = ModelExplorerDialog()
         layout = QHBoxLayout()
         layout.addWidget(self.widget)
+
+        self.add_menu_bar()
+        layout.setMenuBar(self.menu_bar)
         self.setLayout(layout)
 
     def event(self, event):
@@ -65,6 +72,114 @@ class StyleSheetInspector(QDialog):
             self.widget.onHelp()
             return True
         return QDialog.event(self, event)
+
+    def add_menu_bar(self):
+        self.menu_bar = QMenuBar()
+        # self.menu_bar.addMenu("Menu")
+        self.open_action = QAction('Open', self)
+        self.open_action.setStatusTip('Open a file into Template.')
+        self.open_action.setShortcut('CTRL+M')
+        self.open_action.triggered.connect(lambda: self.model_explorer.exec_())
+        self.menu_bar.addAction(self.open_action)
+
+
+class ModelExplorerDialog(QDialog):
+
+    def __init__(self, parent=None):
+        super(ModelExplorerDialog, self).__init__(parent)
+
+        tree = {'root': {
+            "1": ["A", "B", "C"],
+            "2": {
+                "2-1": ["G", "H", "I"],
+                "2-2": ["J", "K", "L"]},
+            "3": ["D", "E", "F"]}
+        }
+
+        self.tree = QTreeView(self)
+        self.editor = QTextEdit(self)
+
+        self.splitter = QSplitter(self)
+        self.splitter.addWidget(self.tree)
+        self.splitter.addWidget(self.editor)
+        self.last_item_clicked = None
+        self.last_item_clicked_style = None
+
+        layout = QHBoxLayout(self)
+        layout.addWidget(self.splitter)
+
+        self.editor.setText(" Values ")
+        root_model = QStandardItemModel()
+        root_model.objectName()
+        self.tree.setModel(root_model)
+        self.tree.clicked.connect(self._item_on_tree_view_selected)
+        self.tree.expandAll()
+        self._set_tree_view_widgets(root_model)
+
+
+
+    def _item_on_tree_view_selected(self, index):
+        import inspect
+
+        self.restore_style_from_last_clicked_item()
+
+        current_item = index.model().itemFromIndex(self.tree.selectedIndexes()[0]).data()
+        self.last_item_clicked_style = current_item.styleSheet()
+
+        self.editor.clear()
+        self.editor.append("Object Name: {} \n\n".format(current_item.objectName()))
+        self.editor.append("Location: {} \n\n".format(inspect.getmodule(current_item)))
+        self.editor.append("Specific style sheet: {} \n\n".format(current_item.styleSheet()))
+
+        current_item.setStyleSheet(current_item.styleSheet() + ' ' + """
+                    border: 1px solid red;
+                """)
+        self.last_item_clicked = current_item
+
+    def restore_style_from_last_clicked_item(self):
+        if self.last_item_clicked:
+            self.last_item_clicked.setStyleSheet(self.last_item_clicked_style)
+
+    def _set_tree_view_widgets(self, item_model):
+        from PyQt5.QtCore import QCoreApplication
+        core = QCoreApplication.instance()
+        top_level_widgets = core.topLevelWidgets()
+
+
+        self._populate_tree(top_level_widgets, item_model)
+
+
+    def _populate_tree(self, list_with_widgets, parent):
+        print("current_list: ", list_with_widgets)
+        for current_widget in list_with_widgets:
+            print("current_item: ", current_widget)
+            name = ' {} - ( {} )'.format(current_widget.objectName(), current_widget.__class__.__name__)
+
+            item = QStandardItem(name)
+            item.setData(current_widget)
+            parent.appendRow(item)
+            print(name)
+            if current_widget.children():
+                print("Sending this children: ", current_widget.children())
+                print("item model :", parent)
+                print("name : ", name)
+                # print("item model[name] :", parent[name])
+                self._populate_tree(current_widget.children(), item)
+
+    def _populateTree(self, children, parent):
+        for child in children:
+            child_item = QStandardItem(child)
+            child_item.custom = 'oi'
+            parent.appendRow(child_item)
+
+            if isinstance(children, dict):
+                self._populateTree(children[child], child_item)
+
+        push = QPushButton()
+        layout = QHBoxLayout()
+        layout.addWidget(push)
+        self.setLayout(layout)
+
 
 
 class StyleSheetWidget(QWidget):
