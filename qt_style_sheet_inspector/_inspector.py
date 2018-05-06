@@ -3,16 +3,17 @@
 from __future__ import absolute_import, division, print_function, \
     unicode_literals
 
-import types
-from contextlib import contextmanager
+import inspect
 from textwrap import dedent
 
-from PyQt5.QtCore import QEvent, Qt
-from PyQt5.QtGui import QKeySequence, QTextCursor, QStandardItemModel, QStandardItem
+import PyQt5
+from PyQt5.QtCore import QEvent, Qt, QCoreApplication
+from PyQt5.QtGui import QKeySequence, QTextCursor, QStandardItemModel, QStandardItem, QPalette, \
+    QColor, QPainter, QPen
 from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLineEdit, QMessageBox, \
-    QPushButton, QShortcut, QTextEdit, QVBoxLayout, QWidget, qApp, QMenuBar, QAction, QPushButton, \
+    QShortcut, QTextEdit, QVBoxLayout, QWidget, qApp, QMenuBar, QAction, QPushButton, \
     QTreeView, QSplitter
-from PyQt5.uic.properties import QtGui
+
 
 
 class StyleSheetInspector(QDialog):
@@ -49,18 +50,22 @@ class StyleSheetInspector(QDialog):
     http://doc.qt.io/qt-5/qtwidgets-widgets-stylesheet-example.html.
     """
 
+
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
 
         self.setWindowTitle('Qt Style Sheet Inspector')
-        self.widget = StyleSheetWidget()
-        self.model_explorer = ModelExplorerDialog()
-        layout = QHBoxLayout()
-        layout.addWidget(self.widget)
-
         self.add_menu_bar()
+
+        self.style_sheet_widget = StyleSheetWidget()
+        self.element_inspect_widget = ElementInspectWidget()
+
+        layout = QHBoxLayout()
+        layout.addWidget(self.element_inspect_widget)
         layout.setMenuBar(self.menu_bar)
+
         self.setLayout(layout)
+
 
     def event(self, event):
         """
@@ -73,28 +78,74 @@ class StyleSheetInspector(QDialog):
             return True
         return QDialog.event(self, event)
 
+
     def add_menu_bar(self):
         self.menu_bar = QMenuBar()
-        # self.menu_bar.addMenu("Menu")
-        self.open_action = QAction('Open', self)
-        self.open_action.setStatusTip('Open a file into Template.')
-        self.open_action.setShortcut('CTRL+M')
-        self.open_action.triggered.connect(lambda: self.model_explorer.exec_())
-        self.menu_bar.addAction(self.open_action)
+
+        self.style_sheet_action = QAction('Open Style Sheet Inspector', self)
+        self.style_sheet_action.triggered.connect(self._open_style_sheet_inspector)
+
+        self.element_inspector_action = QAction('Open Element Inspector', self)
+        self.element_inspector_action.triggered.connect(self._open_element_inspector)
+        self.element_inspector_action.setShortcut('CTRL+E')
+
+        self.menu_bar.addAction(self.style_sheet_action)
+        self.menu_bar.addAction(self.element_inspector_action)
 
 
-class ModelExplorerDialog(QDialog):
+    def _open_element_inspector(self):
+        self.layout().removeWidget(self.style_sheet_widget)
+        self.layout().addWidget(self.element_inspect_widget)
+        self.layout().update()
+
+
+    def _open_style_sheet_inspector(self):
+        self.layout().removeWidget(self.element_inspect_widget)
+        self.layout().addWidget(self.style_sheet_widget)
+        self.layout().update()
+
+
+
+class OverlayInspectWidget(QWidget):
+    def __init__(self, parent=None):
+        super(OverlayInspectWidget, self).__init__(parent)
+
+        palette = QPalette(self.palette())
+        palette.setColor(palette.Background, Qt.transparent)
+        self.setPalette(palette)
+        self.widget_geometry = None
+        # Color that overlay the widget
+        self.fillColor = QColor(102, 121, 163, 120)
+        # Color of the border
+        self.pen = QPen(QColor("#333333"), 3, Qt.SolidLine)
+
+
+    def paintEvent(self, event):
+        widget_size = self.size()
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setPen(self.pen)
+        painter.setBrush(self.fillColor)
+
+        if self.widget_geometry:
+            painter.drawRect(self.widget_geometry)
+        else:
+            painter.drawRect(0, 0, widget_size.width(), widget_size.height())
+
+
+    def SetGeometry(self, widget_geometry):
+        self.widget_geometry = widget_geometry
+
+
+
+class ElementInspectWidget(QWidget):
 
     def __init__(self, parent=None):
-        super(ModelExplorerDialog, self).__init__(parent)
+        super(ElementInspectWidget, self).__init__(parent)
 
-        tree = {'root': {
-            "1": ["A", "B", "C"],
-            "2": {
-                "2-1": ["G", "H", "I"],
-                "2-2": ["J", "K", "L"]},
-            "3": ["D", "E", "F"]}
-        }
+        layout = QHBoxLayout(self)
+        self.setLayout(layout)
 
         self.tree = QTreeView(self)
         self.editor = QTextEdit(self)
@@ -102,83 +153,52 @@ class ModelExplorerDialog(QDialog):
         self.splitter = QSplitter(self)
         self.splitter.addWidget(self.tree)
         self.splitter.addWidget(self.editor)
-        self.last_item_clicked = None
-        self.last_item_clicked_style = None
-
-        layout = QHBoxLayout(self)
         layout.addWidget(self.splitter)
 
-        self.editor.setText(" Values ")
+        self.overlay = OverlayInspectWidget()
+        self.overlay.hide()
+
         root_model = QStandardItemModel()
-        root_model.objectName()
         self.tree.setModel(root_model)
-        self.tree.clicked.connect(self._item_on_tree_view_selected)
+        top_level_widgets = QCoreApplication.instance().topLevelWidgets()
+        self._populate_tree(top_level_widgets,root_model)
+
+        self.tree.clicked.connect(self._item_selected)
         self.tree.expandAll()
-        self._set_tree_view_widgets(root_model)
 
 
-
-    def _item_on_tree_view_selected(self, index):
-        import inspect
-
-        self.restore_style_from_last_clicked_item()
-
+    def _item_selected(self, index):
         current_item = index.model().itemFromIndex(self.tree.selectedIndexes()[0]).data()
-        self.last_item_clicked_style = current_item.styleSheet()
-
+        self.overlay.SetGeometry(None)
         self.editor.clear()
+
+        # I could not make isinstance to work in this case because all objects inherit from QObject
+        if current_item.__class__.__name__ == 'QObject':
+            return
+
+        if current_item.isWidgetType():
+            self.overlay.setParent(current_item)
+            self.editor.append("Specific style sheet: {} \n\n".format(current_item.styleSheet()))
+        else:
+            self.overlay.setParent(current_item.parentWidget())
+
         self.editor.append("Object Name: {} \n\n".format(current_item.objectName()))
         self.editor.append("Location: {} \n\n".format(inspect.getmodule(current_item)))
-        self.editor.append("Specific style sheet: {} \n\n".format(current_item.styleSheet()))
-
-        current_item.setStyleSheet(current_item.styleSheet() + ' ' + """
-                    border: 1px solid red;
-                """)
-        self.last_item_clicked = current_item
-
-    def restore_style_from_last_clicked_item(self):
-        if self.last_item_clicked:
-            self.last_item_clicked.setStyleSheet(self.last_item_clicked_style)
-
-    def _set_tree_view_widgets(self, item_model):
-        from PyQt5.QtCore import QCoreApplication
-        core = QCoreApplication.instance()
-        top_level_widgets = core.topLevelWidgets()
+        self.overlay.setVisible(True)
 
 
-        self._populate_tree(top_level_widgets, item_model)
-
-
-    def _populate_tree(self, list_with_widgets, parent):
-        print("current_list: ", list_with_widgets)
+    def _populate_tree(self, list_with_widgets, tree_parent):
         for current_widget in list_with_widgets:
-            print("current_item: ", current_widget)
+            if isinstance(current_widget, excluded_element_list):
+                continue
+
             name = ' {} - ( {} )'.format(current_widget.objectName(), current_widget.__class__.__name__)
+            tree_item = QStandardItem(name)
+            tree_item.setData(current_widget)
+            tree_parent.appendRow(tree_item)
 
-            item = QStandardItem(name)
-            item.setData(current_widget)
-            parent.appendRow(item)
-            print(name)
             if current_widget.children():
-                print("Sending this children: ", current_widget.children())
-                print("item model :", parent)
-                print("name : ", name)
-                # print("item model[name] :", parent[name])
-                self._populate_tree(current_widget.children(), item)
-
-    def _populateTree(self, children, parent):
-        for child in children:
-            child_item = QStandardItem(child)
-            child_item.custom = 'oi'
-            parent.appendRow(child_item)
-
-            if isinstance(children, dict):
-                self._populateTree(children[child], child_item)
-
-        push = QPushButton()
-        layout = QHBoxLayout()
-        layout.addWidget(push)
-        self.setLayout(layout)
+                self._populate_tree(current_widget.children(), tree_item)
 
 
 
@@ -232,6 +252,7 @@ class StyleSheetWidget(QWidget):
 
         self.loadStyleSheet()
 
+
     def onUndo(self, checked=False):
         """
         Undo last applied style sheet, if there is any.
@@ -243,6 +264,7 @@ class StyleSheetWidget(QWidget):
         self.style_text_edit.setPlainText(self.tape[self.tape_pos])
         self.applyStyleSheet(stateless=True)
 
+
     def onRedo(self, checked=False):
         """
         Redo last reverted style sheet, if there is any.
@@ -253,6 +275,7 @@ class StyleSheetWidget(QWidget):
         self.tape_pos += 1
         self.style_text_edit.setPlainText(self.tape[self.tape_pos])
         self.applyStyleSheet(stateless=True)
+
 
     def onHelp(self):
         """
@@ -273,6 +296,7 @@ class StyleSheetWidget(QWidget):
         msg_box.setDefaultButton(QMessageBox.Ok)
         msg_box.exec_()
 
+
     def onSearchTextChanged(self, text):
         """
         When search bar text changes, try to find text in style sheet text.
@@ -286,6 +310,7 @@ class StyleSheetWidget(QWidget):
         else:
             self.search_bar.setStyleSheet("color: green;")
 
+
     def onNextSearchHit(self):
         """
         Goes to next match to search text. If there isn't any, cycles back to
@@ -297,11 +322,13 @@ class StyleSheetWidget(QWidget):
             self.style_text_edit.moveCursor(QTextCursor.Start)
             self.style_text_edit.find(search)
 
+
     def onFocusSearchBar(self):
         """
         Focus search bar.
         """
         self.search_bar.setFocus()
+
 
     def onStyleTextChanged(self):
         """
@@ -309,11 +336,13 @@ class StyleSheetWidget(QWidget):
         """
         self.apply_button.setEnabled(True)
 
+
     def onApplyButton(self, checked=False):
         """
         Apply style sheet changes in running app when apply button pressed.
         """
         self.applyStyleSheet()
+
 
     def loadStyleSheet(self):
         """
@@ -325,6 +354,7 @@ class StyleSheetWidget(QWidget):
 
         self.style_text_edit.setPlainText(style_sheet)
         self.apply_button.setEnabled(False)
+
 
     def applyStyleSheet(self, stateless=False):
         """
@@ -340,3 +370,7 @@ class StyleSheetWidget(QWidget):
             self.tape.append(self.style_sheet)
             self.tape_pos += 1
         self.apply_button.setEnabled(False)
+
+
+
+excluded_element_list = (StyleSheetInspector, StyleSheetWidget, OverlayInspectWidget, ElementInspectWidget)
